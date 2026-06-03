@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiniLearn - Plateforme d'apprentissage</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        
+        .header { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; padding: 2rem 1rem; text-align: center; }
+        .header h1 { font-size: 32px; margin-bottom: 0.5rem; }
+        .header p { opacity: 0.9; font-size: 16px; }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem 1rem; }
+
+        .login-container { max-width: 400px; margin: 3rem auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .login-container h2 { margin-bottom: 1.5rem; color: #1f2937; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 500; }
+        .form-group input { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
+        .form-group input:focus { outline: none; border-color: #6366f1; }
+        .btn { padding: 0.75rem 1.5rem; background: #6366f1; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; width: 100%; }
+        .btn:hover { background: #4f46e5; }
+        .btn-secondary { background: #9ca3af; }
+        .btn-secondary:hover { background: #6b7280; }
+
+        .courses-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+        .course-card { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid #e5e7eb; cursor: pointer; transition: all 0.3s; }
+        .course-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); transform: translateY(-4px); }
+        .course-card h3 { color: #1f2937; margin-bottom: 0.5rem; }
+        .course-card p { color: #6b7280; font-size: 14px; margin-bottom: 1rem; line-height: 1.5; }
+        .course-meta { display: flex; gap: 1rem; font-size: 13px; color: #6b7280; margin-bottom: 1rem; }
+        .progress-bar { width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; margin-bottom: 0.5rem; }
+        .progress-fill { height: 100%; background: #6366f1; transition: width 0.3s; }
+        .progress-text { font-size: 12px; color: #6b7280; display: flex; justify-content: space-between; margin-bottom: 1rem; }
+
+        .course-detail { background: white; padding: 2rem; border-radius: 12px; }
+        .course-detail h2 { color: #1f2937; margin-bottom: 1rem; }
+        .course-detail p { color: #6b7280; margin-bottom: 1.5rem; }
+        .back-btn { background: transparent; border: 1px solid #d1d5db; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; margin-bottom: 2rem; }
+        .back-btn:hover { background: #f3f4f6; }
+
+        .module-item { display: flex; align-items: center; padding: 1rem; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 1rem; cursor: pointer; transition: all 0.3s; }
+        .module-item:hover { background: #f3f4f6; }
+        .module-item.completed { background: #f0fdf4; border-color: #86efac; }
+        .checkbox { width: 20px; height: 20px; border: 2px solid #d1d5db; border-radius: 4px; margin-right: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .module-item.completed .checkbox { background: #16a34a; border-color: #16a34a; color: white; }
+        .module-info { flex: 1; }
+        .module-info p { margin: 0; color: #1f2937; font-weight: 500; }
+        .module-item.completed p { text-decoration: line-through; opacity: 0.6; }
+        .module-duration { color: #9ca3af; font-size: 13px; }
+
+        .quiz-container { background: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; }
+        .quiz-question { margin-bottom: 2rem; }
+        .quiz-question h3 { color: #1f2937; margin-bottom: 1rem; }
+        .quiz-options { display: flex; flex-direction: column; gap: 0.75rem; }
+        .quiz-option { padding: 1rem; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+        .quiz-option:hover { border-color: #6366f1; background: #f0f9ff; }
+        .quiz-option.selected { background: #e0e7ff; border-color: #6366f1; }
+        .quiz-option.correct { background: #f0fdf4; border-color: #16a34a; }
+        .quiz-option.incorrect { background: #fef2f2; border-color: #dc2626; }
+
+        .certificate { background: white; padding: 3rem 2rem; border-radius: 12px; text-align: center; border: 2px solid #fbbf24; }
+        .certificate h2 { color: #92400e; margin-bottom: 1rem; font-size: 28px; }
+        .certificate p { color: #1f2937; margin-bottom: 0.5rem; }
+        .certificate .name { font-size: 20px; font-weight: bold; color: #6366f1; margin: 1rem 0; }
+        .certificate .course-name { font-size: 18px; color: #6b7280; margin: 1rem 0; }
+        .certificate-btn { margin-top: 1.5rem; }
+
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e5e7eb; }
+        .stat-label { color: #6b7280; font-size: 13px; }
+        .stat-value { color: #1f2937; font-size: 24px; font-weight: bold; margin-top: 0.5rem; }
+
+        .user-profile { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+        .user-info h3 { color: #1f2937; }
+        .user-info p { color: #6b7280; font-size: 14px; }
+        .logout-btn { background: #ef4444; padding: 0.5rem 1rem; }
+        .logout-btn:hover { background: #dc2626; }
+
+        .alert { padding: 1rem; background: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 8px; color: #1e40af; margin-bottom: 1rem; }
+
+        footer { background: #f3f4f6; padding: 2rem 1rem; text-align: center; color: #6b7280; margin-top: 2rem; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function MiniLearn() {
+            const [user, setUser] = useState(null);
+            const [email, setEmail] = useState('');
+            const [name, setName] = useState('');
+            const [selectedCourse, setSelectedCourse] = useState(null);
+            const [userProgress, setUserProgress] = useState({});
+            const [quizAnswers, setQuizAnswers] = useState({});
+            const [showQuiz, setShowQuiz] = useState(false);
+            const [completedCourses, setCompletedCourses] = useState([]);
+
+            const courses = [
+                {
+                    id: 1,
+                    title: "Introduction à React",
+                    description: "Apprenez les bases de React avec des exemples pratiques",
+                    duration: "2h30",
+                    level: "Débutant",
+                    modules: [
+                        { id: 1, title: "Les Hooks", duration: "30min" },
+                        { id: 2, title: "Gestion d'état", duration: "30min" },
+                        { id: 3, title: "Props & Composants", duration: "45min" },
+                        { id: 4, title: "Projet pratique", duration: "45min" }
+                    ],
+                    quiz: [
+                        { q: "Qu'est-ce qu'un Hook React?", options: ["Une fonction", "Une classe", "Un objet"], correct: 0 },
+                        { q: "useState retourne?", options: ["Une valeur", "Un tableau [valeur, setValeur]", "Une fonction"], correct: 1 }
+                    ]
+                },
+                {
+                    id: 2,
+                    title: "JavaScript Avancé",
+                    description: "Maîtrisez les concepts avancés de JavaScript",
+                    duration: "3h",
+                    level: "Intermédiaire",
+                    modules: [
+                        { id: 1, title: "Promises & Async/Await", duration: "45min" },
+                        { id: 2, title: "Destructuring & Spread", duration: "30min" },
+                        { id: 3, title: "Closures & Scope", duration: "45min" }
+                    ],
+                    quiz: [
+                        { q: "Async/Await est basé sur?", options: ["Callbacks", "Promises", "Événements"], correct: 1 },
+                        { q: "Qu'est-ce qu'une closure?", options: ["Une boucle", "Une fonction avec accès aux variables externes", "Une classe"], correct: 1 }
+                    ]
+                },
+                {
+                    id: 3,
+                    title: "Node.js & Express",
+                    description: "Créez des serveurs web avec Node.js",
+                    duration: "4h",
+                    level: "Avancé",
+                    modules: [
+                        { id: 1, title: "Bases de Node.js", duration: "1h" },
+                        { id: 2, title: "Framework Express", duration: "1h30" },
+                        { id: 3, title: "Base de données", duration: "1h30" }
+                    ],
+                    quiz: [
+                        { q: "Node.js utilise?", options: ["Java", "JavaScript", "Python"], correct: 1 },
+                        { q: "Express est?", options: ["Une DB", "Un framework web", "Un langage"], correct: 1 }
+                    ]
+                },
+                {
+                    id: 4,
+                    title: "Web Design Responsive",
+                    description: "Créez des designs modernes et adaptatifs",
+                    duration: "2h",
+                    level: "Débutant",
+                    modules: [
+                        { id: 1, title: "Flexbox", duration: "30min" },
+                        { id: 2, title: "CSS Grid", duration: "30min" },
+                        { id: 3, title: "Media Queries", duration: "30min" },
+                        { id: 4, title: "Projet responsive", duration: "30min" }
+                    ],
+                    quiz: [
+                        { q: "Flexbox s'utilise sur?", options: ["L'élément parent", "L'élément enfant", "Le document"], correct: 0 },
+                        { q: "CSS Grid permet?", options: ["Des flex", "Des grilles 2D", "Des animations"], correct: 1 }
+                    ]
+                }
+            ];
+
+            // Load from localStorage
+            useEffect(() => {
+                const saved = localStorage.getItem('minilearn_user');
+                const progress = localStorage.getItem('minilearn_progress');
+                const completed = localStorage.getItem('minilearn_completed');
+                if (saved) setUser(JSON.parse(saved));
+                if (progress) setUserProgress(JSON.parse(progress));
+                if (completed) setCompletedCourses(JSON.parse(completed));
+            }, []);
+
+            // Save to localStorage
+            useEffect(() => {
+                if (user) localStorage.setItem('minilearn_user', JSON.stringify(user));
+            }, [user]);
+
+            useEffect(() => {
+                localStorage.setItem('minilearn_progress', JSON.stringify(userProgress));
+            }, [userProgress]);
+
+            useEffect(() => {
+                localStorage.setItem('minilearn_completed', JSON.stringify(completedCourses));
+            }, [completedCourses]);
+
+            const login = (e) => {
+                e.preventDefault();
+                if (name && email) {
+                    setUser({ name, email, joinDate: new Date().toLocaleDateString() });
+                    setName('');
+                    setEmail('');
+                }
+            };
+
+            const logout = () => {
+                setUser(null);
+                setSelectedCourse(null);
+                setShowQuiz(false);
+            };
+
+            const toggleModule = (courseId, moduleId) => {
+                const key = `${courseId}-${moduleId}`;
+                setUserProgress(prev => ({ ...prev, [key]: !prev[key] }));
+            };
+
+            const getCourseProgress = (courseId) => {
+                const course = courses.find(c => c.id === courseId);
+                const completed = course.modules.filter(m => userProgress[`${courseId}-${m.id}`]).length;
+                return Math.round((completed / course.modules.length) * 100);
+            };
+
+            const submitQuiz = (courseId) => {
+                const course = courses.find(c => c.id === courseId);
+                let score = 0;
+                course.quiz.forEach((q, i) => {
+                    if (quizAnswers[`${courseId}-${i}`] === q.correct) score++;
+                });
+                const percentage = Math.round((score / course.quiz.length) * 100);
+                
+                if (percentage >= 70) {
+                    setCompletedCourses([...completedCourses, courseId]);
+                    setShowQuiz(false);
+                }
+                alert(`Score: ${score}/${course.quiz.length} (${percentage}%)`);
+            };
+
+            if (!user) {
+                return (
+                    <>
+                        <div className="header">
+                            <h1>📚 MiniLearn</h1>
+                            <p>Plateforme d'apprentissage en ligne</p>
+                        </div>
+                        <div className="login-container">
+                            <h2>Créer un compte</h2>
+                            <form onSubmit={login}>
+                                <div className="form-group">
+                                    <label>Nom</label>
+                                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Votre nom" />
+                                </div>
+                                <div className="form-group">
+                                    <label>Email</label>
+                                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="votre@email.com" />
+                                </div>
+                                <button className="btn">Se connecter</button>
+                            </form>
+                        </div>
+                        <footer>
+                            © 2026 MiniLearn - Créé pour Julien NTADI BANZA & Karam SALHI
+                        </footer>
+                    </>
+                );
+            }
+
+            if (selectedCourse) {
+                const course = courses.find(c => c.id === selectedCourse.id);
+                const isCompleted = completedCourses.includes(course.id);
+
+                return (
+                    <>
+                        <div className="header">
+                            <h1>📚 MiniLearn</h1>
+                            <p>Plateforme d'apprentissage en ligne</p>
+                        </div>
+                        <div className="container">
+                            <button className="back-btn" onClick={() => setSelectedCourse(null)}>← Retour</button>
+                            
+                            <div className="course-detail">
+                                <h2>{course.title}</h2>
+                                <p>{course.description}</p>
+
+                                <div className="stats">
+                                    <div className="stat-card">
+                                        <div className="stat-label">Durée</div>
+                                        <div className="stat-value">⏱️ {course.duration}</div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-label">Niveau</div>
+                                        <div className="stat-value">📊 {course.level}</div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-label">Progression</div>
+                                        <div className="stat-value">{getCourseProgress(course.id)}%</div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-label">Statut</div>
+                                        <div className="stat-value">{isCompleted ? '✅ Complété' : '⏳ En cours'}</div>
+                                    </div>
+                                </div>
+
+                                {getCourseProgress(course.id) === 100 && !isCompleted && (
+                                    <button className="btn" onClick={() => setShowQuiz(true)} style={{ marginBottom: '2rem' }}>
+                                        Passer le quiz final 🎯
+                                    </button>
+                                )}
+
+                                {isCompleted && (
+                                    <div style={{ background: '#fef3c7', border: '1px solid #fbbf24', padding: '1rem', borderRadius: '8px', marginBottom: '2rem', textAlign: 'center', color: '#92400e' }}>
+                                        ✅ Vous avez complété ce cours! Un certificat vous attend.
+                                    </div>
+                                )}
+
+                                {!showQuiz && (
+                                    <>
+                                        <h3>Modules ({course.modules.length})</h3>
+                                        {course.modules.map((module, i) => {
+                                            const completed = userProgress[`${course.id}-${module.id}`];
+                                            return (
+                                                <div key={module.id} className={`module-item ${completed ? 'completed' : ''}`} onClick={() => toggleModule(course.id, module.id)}>
+                                                    <div className="checkbox">{completed ? '✓' : ''}</div>
+                                                    <div className="module-info">
+                                                        <p>Module {i + 1}: {module.title}</p>
+                                                    </div>
+                                                    <div className="module-duration">{module.duration}</div>
+                                                </div>
+                                            );
+                                        })}
+                                    </>
+                                )}
+
+                                {showQuiz && (
+                                    <div className="quiz-container">
+                                        <h3>Quiz Final - {course.title}</h3>
+                                        {course.quiz.map((q, i) => (
+                                            <div key={i} className="quiz-question">
+                                                <h4>Question {i + 1}: {q.q}</h4>
+                                                <div className="quiz-options">
+                                                    {q.options.map((opt, j) => (
+                                                        <div key={j} className={`quiz-option ${quizAnswers[`${course.id}-${i}`] === j ? 'selected' : ''}`} onClick={() => setQuizAnswers({...quizAnswers, [`${course.id}-${i}`]: j})}>
+                                                            {opt}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <button className="btn" onClick={() => submitQuiz(course.id)}>Soumettre le quiz</button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <footer>
+                            © 2026 MiniLearn - Créé pour Julien NTADI BANZA & Karam SALHI
+                        </footer>
+                    </>
+                );
+            }
+
+            return (
+                <>
+                    <div className="header">
+                        <h1>📚 MiniLearn</h1>
+                        <p>Plateforme d'apprentissage en ligne</p>
+                    </div>
+                    <div className="container">
+                        <div className="user-profile">
+                            <div className="user-info">
+                                <h3>👋 Bienvenue, {user.name}!</h3>
+                                <p>Membre depuis {user.joinDate}</p>
+                            </div>
+                            <button className="btn logout-btn" onClick={logout}>Déconnexion</button>
+                        </div>
+
+                        {completedCourses.length > 0 && (
+                            <div className="alert">
+                                ✅ Vous avez complété {completedCourses.length} cours! Excellente progression!
+                            </div>
+                        )}
+
+                        <h2>Cours disponibles ({courses.length})</h2>
+                        <div className="courses-grid">
+                            {courses.map(course => (
+                                <div key={course.id} className="course-card" onClick={() => setSelectedCourse(course)}>
+                                    <h3>{course.title}</h3>
+                                    <p>{course.description}</p>
+                                    <div className="course-meta">
+                                        <span>⏱️ {course.duration}</span>
+                                        <span>📊 {course.level}</span>
+                                    </div>
+                                    <div className="progress-text">
+                                        <span>Progression</span>
+                                        <span>{getCourseProgress(course.id)}%</span>
+                                    </div>
+                                    <div className="progress-bar">
+                                        <div className="progress-fill" style={{ width: `${getCourseProgress(course.id)}%` }}></div>
+                                    </div>
+                                    <button className="btn">Accéder au cours →</button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <footer>
+                        © 2026 MiniLearn - Créé pour Julien NTADI BANZA & Karam SALHI
+                    </footer>
+                </>
+            );
+        }
+
+        ReactDOM.render(<MiniLearn />, document.getElementById('root'));
+    </script>
+</body>
+</html>
